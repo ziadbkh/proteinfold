@@ -148,7 +148,7 @@
       <!-- Left panel -->
       <div class="relative flex flex-col flex-1 bg-black">
         <!-- Canvas -->
-        <div class="w-full min-h-[60vh] xl:w-[65vw]" id="ngl-root"></div>
+        <div class="w-full min-h-[65vh] xl:w-[65vw]" id="ngl-root"></div>
         <!-- Message -->
         <div
           class="absolute top-0 left-0 hidden justify-center items-center w-full h-full text-white text-lg font-semibold"
@@ -307,12 +307,12 @@
           </div>
         </div>
         <!-- Buttons -->
-        <div class="flex flex-col gap-2">
+        <div class="flex flex-col gap-6">
           <div>
             <div class="text-2xl font-bold tracking-tight text-gray-900">Toggle representations</div>
-            <div class="mt-2">
+            <div class="mt-2 flex flex-wrap gap-3">
               <button
-                class="btn selected mr-2 mb-4 w-28 rounded-md bg-white border border-gray-300 py-3 text-sm font-semibold text-gray-800 shadow-md hover:border-gray-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-800"
+                class="btn selected w-28 rounded-md bg-white border border-gray-300 py-3 text-sm font-semibold text-gray-800 shadow-md hover:border-gray-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-800"
                 id="btn-cartoon"
                 onclick="toggleModelRepresentation('cartoon');"
               >
@@ -320,7 +320,7 @@
                 Cartoon
               </button>
               <button
-                class="btn mr-2 mb-4 w-28 rounded-md bg-white border border-gray-300 py-3 text-sm font-semibold text-gray-800 shadow-md hover:border-gray-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-800"
+                class="btn w-28 rounded-md bg-white border border-gray-300 py-3 text-sm font-semibold text-gray-800 shadow-md hover:border-gray-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-800"
                 id="btn-ball-stick"
                 onclick="toggleModelRepresentation('ball+stick');"
               >
@@ -328,7 +328,7 @@
                 Ball + stick
               </button>
               <button
-                class="btn mr-2 mb-4 w-28 rounded-md bg-white border border-gray-300 py-3 text-sm font-semibold text-gray-800 shadow-md hover:border-gray-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-800"
+                class="btn w-28 rounded-md bg-white border border-gray-300 py-3 text-sm font-semibold text-gray-800 shadow-md hover:border-gray-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-800"
                 id="btn-surface"
                 onclick="toggleModelRepresentation('surface');"
               >
@@ -336,7 +336,7 @@
                 Surface
               </button>
               <button
-                class="btn mr-2 mb-4 w-28 rounded-md bg-white border border-gray-300 py-3 text-sm font-semibold text-gray-800 shadow-md hover:border-gray-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-800"
+                class="btn w-28 rounded-md bg-white border border-gray-300 py-3 text-sm font-semibold text-gray-800 shadow-md hover:border-gray-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-800"
                 id="btn-backbone"
                 onclick="toggleModelRepresentation('backbone');"
               >
@@ -346,20 +346,20 @@
             </div>
           </div>
           <div>
-            <div class="flex justify-start gap-2 flex-col xl:flex-row xl:flex-wrap">
+            <div class="flex justify-start gap-x-3 gap-y-6 flex-col xl:flex-row xl:flex-wrap">
               <div class="grow-0">
                 <div class="text-2xl font-bold tracking-tight text-gray-900">Actions</div>
-                <div class="mt-2">
+                <div class="mt-2 flex flex-wrap gap-3">
                   <button
-                    class="btn selected mr-2 mb-4 w-28 rounded-md bg-white border border-gray-300 py-3 text-sm font-semibold text-gray-800 shadow-md hover:border-gray-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-800"
+                    class="btn selected w-28 rounded-md bg-white border border-gray-300 py-3 text-sm font-semibold text-gray-800 shadow-md hover:border-gray-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-800"
                     id="btn-toggle-spin"
                     onclick="toggleSpin()"
                   >
                     <span class="text-gray-300 mr-0.5"><i class="bi bi-check-circle-fill"></i></span>
-                    Toggle spin
+                    Spin
                   </button>
                   <button
-                    class="btn mr-2 mb-4 w-28 rounded-md bg-white border border-gray-300 py-3 text-sm font-semibold text-gray-800 shadow-md hover:border-gray-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-800"
+                    class="btn w-28 rounded-md bg-white border border-gray-300 py-3 text-sm font-semibold text-gray-800 shadow-md hover:border-gray-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-800"
                     id="btn-toggle-dark"
                     onclick="toggleDark()"
                   >
@@ -370,10 +370,10 @@
               </div>
               <div class="grow-0">
                 <div class="text-2xl font-bold tracking-tight text-gray-900">Download</div>
-                <div class="mt-2">
+                <div class="mt-2 flex flex-wrap gap-3">
                   <button
                     type="button"
-                    class="mr-2 mb-4 w-28 rounded bg-green-600 py-3 text-sm font-semibold text-white shadow-md hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600"
+                    class="w-28 rounded bg-green-600 py-3 text-sm font-semibold text-white shadow-md hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600"
                     onclick="downloadPng()"
                   >
                     <span class="text-white mr-0.5">
@@ -383,7 +383,7 @@
                   </button>
                   <button
                     type="button"
-                    class="mr-2 mb-4 w-28 rounded bg-green-600 py-3 text-sm font-semibold text-white shadow-md hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600"
+                    class="w-28 rounded bg-green-600 py-3 text-sm font-semibold text-white shadow-md hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600"
                     onclick="downloadPdb()"
                   >
                     <span class="text-white mr-0.5">
