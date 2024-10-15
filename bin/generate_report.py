@@ -10,7 +10,7 @@ import re
 from Bio import PDB
 
 
-def generate_output_images(msa_path, plddt_data, name, out_dir, in_type, generate_tsv):
+def generate_output_images(msa_path, plddt_data, name, out_dir, in_type, generate_tsv, pdb):
     msa = []
     if in_type.lower() != "colabfold" and not msa_path.endswith("NO_FILE"):
         with open(msa_path, "r") as in_file:
@@ -95,7 +95,7 @@ def generate_output_images(msa_path, plddt_data, name, out_dir, in_type, generat
 
     fig = go.Figure()
     for idx, (model_name, value_plddt) in enumerate(plddt_per_model.items()):
-        rank_label = f"Ranked {idx}"
+        rank_label = os.path.splitext(pdb[idx])[0]
         fig.add_trace(
             go.Scatter(
                 x=list(range(len(value_plddt))),
@@ -301,7 +301,7 @@ args = parser.parse_args()
 lddt_data, lddt_averages = pdb_to_lddt(args.pdb, args.generate_tsv)
 
 generate_output_images(
-    args.msa, lddt_data, args.name, args.output_dir, args.in_type, args.generate_tsv
+    args.msa, lddt_data, args.name, args.output_dir, args.in_type, args.generate_tsv, args.pdb
 )
 # generate_plots(args.msa, args.plddt, args.name, args.output_dir)
 
