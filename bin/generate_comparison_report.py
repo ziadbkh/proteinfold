@@ -10,7 +10,7 @@ import re
 from Bio import PDB
 
 
-def generate_output_images(msa_path, plddt_data, name, out_dir, in_type, generate_tsv, pdb):
+def generate_output(msa_path, plddt_data, name, out_dir, in_type, generate_tsv, pdb):
     msa = []
     if in_type.lower() != "colabfold" and not msa_path.endswith("NO_FILE"):
         with open(msa_path, "r") as in_file:
@@ -44,10 +44,8 @@ def generate_output_images(msa_path, plddt_data, name, out_dir, in_type, generat
                 ]
             )
 
-        # ##################################################################
-        plt.figure(figsize=(14, 14), dpi=100)
-        # ##################################################################
-        plt.title("Sequence coverage", fontsize=30, pad=36)
+        plt.figure(figsize=(12, 8), dpi=100)
+        plt.title("Sequence coverage", fontsize=30, pad=24)
         plt.imshow(
             final,
             interpolation="nearest",
@@ -73,11 +71,9 @@ def generate_output_images(msa_path, plddt_data, name, out_dir, in_type, generat
         cbar = plt.colorbar()
         cbar.set_label("Sequence identity to query", fontsize=24, labelpad=24)
         cbar.ax.tick_params(labelsize=18)
-        plt.xlabel("Positions", fontsize=24, labelpad=24)
+        plt.xlabel("Positions", fontsize=24, labelpad=12)
         plt.ylabel("Sequences", fontsize=24, labelpad=36)
         plt.savefig(f"{out_dir}/{name+('_' if name else '')}seq_coverage.png")
-
-        # ##################################################################
 
     plddt_per_model = OrderedDict()
     output_data = plddt_data
@@ -136,78 +132,6 @@ def generate_output_images(msa_path, plddt_data, name, out_dir, in_type, generat
         f"{out_dir}/{name+('_' if name else '')}coverage_LDDT.html", "w"
     ) as out_file:
         out_file.write(html_content)
-
-
-def generate_plots(msa_path, plddt_paths, name, out_dir):
-    msa = []
-    with open(msa_path, "r") as in_file:
-        for line in in_file:
-            msa.append([int(x) for x in line.strip().split()])
-
-    seqid = []
-    for sequence in msa:
-        matches = [
-            1.0 if first == other else 0.0 for first, other in zip(msa[0], sequence)
-        ]
-        seqid.append(sum(matches) / len(matches))
-
-    seqid_sort = sorted(range(len(seqid)), key=seqid.__getitem__)
-
-    non_gaps = []
-    for sequence in msa:
-        non_gaps.append(
-            [float(num != 21) if num != 21 else float("nan") for num in sequence]
-        )
-
-    sorted_non_gaps = [non_gaps[i] for i in seqid_sort]
-    final = []
-    for sorted_seq, identity in zip(sorted_non_gaps, [seqid[i] for i in seqid_sort]):
-        final.append(
-            [
-                value * identity if not isinstance(value, str) else value
-                for value in sorted_seq
-            ]
-        )
-
-    # Plotting Sequence Coverage using Plotly
-    fig = go.Figure()
-    fig.add_trace(
-        go.Heatmap(
-            z=final,
-            colorscale="Rainbow",
-            zmin=0,
-            zmax=1,
-        )
-    )
-    fig.update_layout(
-        title="Sequence coverage", xaxis_title="Positions", yaxis_title="Sequences"
-    )
-    # Save as interactive HTML instead of an image
-    fig.savefig(f"{out_dir}/{name+('_' if name else '')}seq_coverage.png")
-
-    # Plotting Predicted LDDT per position using Plotly
-    plddt_per_model = OrderedDict()
-    plddt_paths.sort()
-    for plddt_path in plddt_paths:
-        with open(plddt_path, "r") as in_file:
-            plddt_per_model[os.path.basename(plddt_path)[:-4]] = [
-                float(x) for x in in_file.read().strip().split()
-            ]
-
-    i = 0
-    for model_name, value_plddt in plddt_per_model.items():
-        fig = go.Figure()
-        fig.add_trace(
-            go.Scatter(
-                x=list(range(len(value_plddt))),
-                y=value_plddt,
-                mode="lines",
-                name=model_name,
-            )
-        )
-        fig.update_layout(title="Predicted LDDT per Position")
-        fig.savefig(f"{out_dir}/{name+('_' if name else '')}coverage_LDDT_{i}.png")
-        i += 1
 
 
 def align_structures(structures):
@@ -282,12 +206,6 @@ def pdb_to_lddt(pdb_files, generate_tsv):
 print("Starting...")
 
 version = "1.0.0"
-model_name = {
-    "esmfold": "ESMFold",
-    "alphafold2": "AlphaFold2",
-    "colabfold": "ColabFold",
-}
-
 parser = argparse.ArgumentParser()
 parser.add_argument("--type", dest="in_type")
 parser.add_argument(
@@ -300,18 +218,18 @@ parser.add_argument("--output_dir", dest="output_dir")
 parser.add_argument("--html_template", dest="html_template")
 parser.add_argument("--version", action="version", version=f"{version}")
 parser.set_defaults(output_dir="")
-parser.set_defaults(in_type="esmfold")
+parser.set_defaults(in_type="ESMFOLD")
 parser.set_defaults(name="")
 args = parser.parse_args()
 
 lddt_data, lddt_averages = pdb_to_lddt(args.pdb, args.generate_tsv)
 
-generate_output_images(
+generate_output(
     args.msa, lddt_data, args.name, args.output_dir, args.in_type, args.generate_tsv, args.pdb
 )
-# generate_plots(args.msa, args.plddt, args.name, args.output_dir)
 
 print("generating html report...")
+
 structures = args.pdb
 structures.sort()
 aligned_structures = align_structures(structures)
@@ -322,28 +240,26 @@ io.set_structure(aligned_structures[0])
 io.save(ref_structure_path)
 aligned_structures[0] = ref_structure_path
 
-proteinfold_template = open(args.html_template, "r").read()
-proteinfold_template = proteinfold_template.replace("*sample_name*", args.name)
-proteinfold_template = proteinfold_template.replace(
-    "*prog_name*", model_name[args.in_type.lower()]
-)
+alphafold_template = open(args.html_template, "r").read()
+alphafold_template = alphafold_template.replace("*sample_name*", args.name)
+alphafold_template = alphafold_template.replace("*prog_name*", args.in_type)
 
 args_pdb_array_js = ",\n".join([f'"{model}"' for model in structures])
-proteinfold_template = re.sub(
+alphafold_template = re.sub(
     r"const MODELS = \[.*?\];",  # Match the existing MODELS array in HTML template
     f"const MODELS = [\n  {args_pdb_array_js}\n];",  # Replace with the new array
-    proteinfold_template,
+    alphafold_template,
     flags=re.DOTALL,
 )
 
 averages_js_array = f"const LDDT_AVERAGES = {lddt_averages};"
-proteinfold_template = proteinfold_template.replace(
+alphafold_template = alphafold_template.replace(
     "const LDDT_AVERAGES = [];", averages_js_array
 )
 
 i = 0
 for structure in aligned_structures:
-    proteinfold_template = proteinfold_template.replace(
+    alphafold_template = alphafold_template.replace(
         f"*_data_ranked_{i}.pdb*", open(structure, "r").read().replace("\n", "\\n")
     )
     i += 1
@@ -355,24 +271,22 @@ if not args.msa.endswith("NO_FILE"):
         else f"{args.output_dir}/{args.name + ('_' if args.name else '')}seq_coverage.png"
     )
     with open(image_path, "rb") as in_file:
-        proteinfold_template = proteinfold_template.replace(
+        alphafold_template = alphafold_template.replace(
             "seq_coverage.png",
             f"data:image/png;base64,{base64.b64encode(in_file.read()).decode('utf-8')}",
         )
 else:
     pattern = r'<div id="seq_coverage_container".*?>.*?(<!--.*?-->.*?)*?</div>\s*</div>'
-    proteinfold_template = re.sub(pattern, "", proteinfold_template, flags=re.DOTALL)
+    alphafold_template = re.sub(pattern, "", alphafold_template, flags=re.DOTALL)
 
 with open(
     f"{args.output_dir}/{args.name + ('_' if args.name else '')}coverage_LDDT.html",
     "r",
 ) as in_file:
     lddt_html = in_file.read()
-    proteinfold_template = proteinfold_template.replace(
+    alphafold_template = alphafold_template.replace(
         '<div id="lddt_placeholder"></div>', lddt_html
     )
 
-with open(
-    f"{args.output_dir}/{args.name}_{args.in_type.lower()}_report.html", "w"
-) as out_file:
-    out_file.write(proteinfold_template)
+with open(f"{args.output_dir}/{args.name}_{args.in_type.lower()}_report.html", "w") as out_file:
+    out_file.write(alphafold_template)
