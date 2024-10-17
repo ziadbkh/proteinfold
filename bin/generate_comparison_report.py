@@ -44,7 +44,7 @@ def generate_output(msa_path, plddt_data, name, out_dir, in_type, generate_tsv, 
                 ]
             )
 
-        plt.figure(figsize=(14, 8), dpi=100)
+        plt.figure(figsize=(12, 8), dpi=100)
         plt.title("Sequence coverage", fontsize=30, pad=24)
         plt.imshow(
             final,
