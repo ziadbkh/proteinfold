@@ -2,79 +2,12 @@
 
 import os
 import argparse
-from matplotlib import pyplot as plt
 from collections import OrderedDict
-import base64
 import plotly.graph_objects as go
-import re
 from Bio import PDB
 
 
-def generate_output(msa_path, plddt_data, name, out_dir, in_type, generate_tsv, pdb):
-    msa = []
-    if in_type.lower() != "colabfold" and not msa_path.endswith("NO_FILE"):
-        with open(msa_path, "r") as in_file:
-            for line in in_file:
-                msa.append([int(x) for x in line.strip().split()])
-
-        seqid = []
-        for sequence in msa:
-            matches = [
-                1.0 if first == other else 0.0 for first, other in zip(msa[0], sequence)
-            ]
-            seqid.append(sum(matches) / len(matches))
-
-        seqid_sort = sorted(range(len(seqid)), key=seqid.__getitem__)
-
-        non_gaps = []
-        for sequence in msa:
-            non_gaps.append(
-                [float(num != 21) if num != 21 else float("nan") for num in sequence]
-            )
-
-        sorted_non_gaps = [non_gaps[i] for i in seqid_sort]
-        final = []
-        for sorted_seq, identity in zip(
-            sorted_non_gaps, [seqid[i] for i in seqid_sort]
-        ):
-            final.append(
-                [
-                    value * identity if not isinstance(value, str) else value
-                    for value in sorted_seq
-                ]
-            )
-
-        plt.figure(figsize=(12, 8), dpi=100)
-        plt.title("Sequence coverage", fontsize=30, pad=24)
-        plt.imshow(
-            final,
-            interpolation="nearest",
-            aspect="auto",
-            cmap="rainbow_r",
-            vmin=0,
-            vmax=1,
-            origin="lower",
-        )
-
-        column_counts = [0] * len(msa[0])
-        for col in range(len(msa[0])):
-            for row in msa:
-                if row[col] != 21:
-                    column_counts[col] += 1
-
-        plt.plot(column_counts, color="black")
-        plt.xlim(-0.5, len(msa[0]) - 0.5)
-        plt.ylim(-0.5, len(msa) - 0.5)
-
-        plt.tick_params(axis="both", which="both", labelsize=18)
-
-        cbar = plt.colorbar()
-        cbar.set_label("Sequence identity to query", fontsize=24, labelpad=24)
-        cbar.ax.tick_params(labelsize=18)
-        plt.xlabel("Positions", fontsize=24, labelpad=12)
-        plt.ylabel("Sequences", fontsize=24, labelpad=36)
-        plt.savefig(f"{out_dir}/{name+('_' if name else '')}seq_coverage.png")
-
+def generate_output(plddt_data, name, out_dir, generate_tsv, pdb):
     plddt_per_model = OrderedDict()
     output_data = plddt_data
 
@@ -211,7 +144,7 @@ parser.add_argument("--type", dest="in_type")
 parser.add_argument(
     "--generate_tsv", choices=["y", "n"], default="n", dest="generate_tsv"
 )
-parser.add_argument("--msa", dest="msa", default="NO_FILE")
+parser.add_argument("--msa", dest="msa", required=True, nargs="+")
 parser.add_argument("--pdb", dest="pdb", required=True, nargs="+")
 parser.add_argument("--name", dest="name")
 parser.add_argument("--output_dir", dest="output_dir")
@@ -225,7 +158,7 @@ args = parser.parse_args()
 lddt_data, lddt_averages = pdb_to_lddt(args.pdb, args.generate_tsv)
 
 generate_output(
-    args.msa, lddt_data, args.name, args.output_dir, args.in_type, args.generate_tsv, args.pdb
+    lddt_data, args.name, args.output_dir, args.generate_tsv, args.pdb
 )
 
 print("generating html report...")
@@ -244,12 +177,14 @@ alphafold_template = open(args.html_template, "r").read()
 alphafold_template = alphafold_template.replace("*sample_name*", args.name)
 alphafold_template = alphafold_template.replace("*prog_name*", args.in_type)
 
-args_pdb_array_js = ",\n".join([f'"{model}"' for model in structures])
-alphafold_template = re.sub(
-    r"const MODELS = \[.*?\];",  # Match the existing MODELS array in HTML template
-    f"const MODELS = [\n  {args_pdb_array_js}\n];",  # Replace with the new array
-    alphafold_template,
-    flags=re.DOTALL,
+args_pdb_array_js = "const MODELS = [" + ",\n".join([f'"{model}"' for model in structures]) + "];"
+alphafold_template = alphafold_template.replace(
+    "const MODELS = [];", args_pdb_array_js
+)
+
+args_msa_array_js = "const SEQ_COV_IMGS = [" + ", ".join([f'"{item}"' for item in args.msa if item != "NO_FILE"]) + "];"
+alphafold_template = alphafold_template.replace(
+    "const SEQ_COV_IMGS = [];", args_msa_array_js
 )
 
 averages_js_array = f"const LDDT_AVERAGES = {lddt_averages};"
@@ -263,21 +198,6 @@ for structure in aligned_structures:
         f"*_data_ranked_{i}.pdb*", open(structure, "r").read().replace("\n", "\\n")
     )
     i += 1
-
-if not args.msa.endswith("NO_FILE"):
-    image_path = (
-        f"{args.output_dir}/{args.msa}"
-        if args.in_type.lower() == "colabfold"
-        else f"{args.output_dir}/{args.name + ('_' if args.name else '')}seq_coverage.png"
-    )
-    with open(image_path, "rb") as in_file:
-        alphafold_template = alphafold_template.replace(
-            "seq_coverage.png",
-            f"data:image/png;base64,{base64.b64encode(in_file.read()).decode('utf-8')}",
-        )
-else:
-    pattern = r'<div id="seq_coverage_container".*?>.*?(<!--.*?-->.*?)*?</div>\s*</div>'
-    alphafold_template = re.sub(pattern, "", alphafold_template, flags=re.DOTALL)
 
 with open(
     f"{args.output_dir}/{args.name + ('_' if args.name else '')}coverage_LDDT.html",

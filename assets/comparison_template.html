@@ -49,14 +49,6 @@
           rgba(3, 30, 148, 1) 100%
         );
       }
-      .ngl-viewport {
-        position: absolute;
-        width: 84px;
-        height: 84px;
-        visibility: hidden;
-        top: -9999px;
-        left: -9999px;
-      }
       #lddt_container .modebar {
         display: flex !important;
         flex-direction: row !important;
@@ -214,7 +206,7 @@
         <!-- <div class="text-white mx-auto font-semibold pb-4">The top-ranked structures predicted by Alphafold</div> -->
       </div>
       <!-- Right panel -->
-      <div class="flex-1 p-6 bg-gray-100 w-full flex flex-row xl:flex-col gap-12">
+      <div class="flex-1 p-6 bg-gray-100 w-full flex flex-row xl:flex-col gap-6">
         <!-- Directions -->
         <div>
           <div class="text-2xl font-bold tracking-tight text-gray-900">Navigation</div>
@@ -266,70 +258,66 @@
     </div>
     <!-- Plots -->
     <div
-      class="bg-gray-200 p-24 flex flex-col justify-center items-center gap-24 2xl:flex-row lg:justify-between 2xl:justify-around"
+      class="bg-gray-200 p-24 flex flex-col justify-center items-center 2xl:items-start gap-24 2xl:flex-row lg:justify-between 2xl:justify-around"
     >
-      <div class="flex flex-col gap-6 bg-white rounded shadow-md p-6 pt-2 max-w-[720px]">
-        <!-- Tabs -->
-        <div class="text-sm font-medium text-center text-gray-500 border-b border-gray-300">
-          <ul id="tabs-list" class="flex -mb-px"></ul>
-        </div>
-        <!-- Structure information -->
-        <div class="flex gap-6">
-          <div class="w-1/2">
-            <div class="text-2xl font-bold tracking-tight text-gray-900">Information</div>
-            <div id="structure-info" class="mt-2 font-semibold">
-              <div>Program: <span class="font-normal">*prog_name*</span></div>
-              <div>ID: <span class="font-normal">*sample_name*</span></div>
-              <div>
-                Average pLDDT:
-                <span id="lddt-average" class="font-normal"></span>
+      <div class="flex-1 w-[660px] flex flex-col gap-12">
+        <div class="p-6 pt-2 rounded shadow-md bg-white flex flex-col gap-6">
+          <!-- Tabs -->
+          <div class="text-sm font-medium text-center text-gray-500 border-b border-gray-300">
+            <ul id="tabs-list" class="flex -mb-px"></ul>
+          </div>
+          <!-- Structure information -->
+          <div class="flex gap-6">
+            <div class="w-1/2">
+              <div class="text-2xl font-bold tracking-tight text-gray-900">Information</div>
+              <div id="structure-info" class="mt-2 font-semibold">
+                <div>Program: <span class="font-normal">*prog_name*</span></div>
+                <div>ID: <span class="font-normal">*sample_name*</span></div>
+                <div>
+                  Average pLDDT:
+                  <span id="lddt-average" class="font-normal"></span>
+                </div>
+              </div>
+            </div>
+            <div class="w-1/2">
+              <div class="text-2xl font-bold tracking-tight text-gray-900">Download</div>
+              <div class="mt-2 flex flex-wrap gap-3">
+                <button
+                  type="button"
+                  class="w-28 rounded bg-green-600 py-3 text-sm font-semibold text-white shadow-md hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600"
+                  onclick="downloadPng()"
+                >
+                  <span class="text-white mr-1">
+                    <i class="bi bi-camera-fill"></i>
+                  </span>
+                  Snapshot
+                </button>
+                <button
+                  type="button"
+                  class="w-28 rounded bg-green-600 py-3 text-sm font-semibold text-white shadow-md hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600"
+                  onclick="downloadPdb()"
+                >
+                  <span class="text-white mr-1">
+                    <i class="bi bi-file-earmark-arrow-down-fill"></i>
+                  </span>
+                  PDB
+                </button>
               </div>
             </div>
           </div>
-          <div class="w-1/2">
-            <div class="text-2xl font-bold tracking-tight text-gray-900">Download</div>
-            <div class="mt-2 flex flex-wrap gap-3">
-              <button
-                type="button"
-                class="w-28 rounded bg-green-600 py-3 text-sm font-semibold text-white shadow-md hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600"
-                onclick="downloadPng()"
-              >
-                <span class="text-white mr-1">
-                  <i class="bi bi-camera-fill"></i>
-                </span>
-                Snapshot
-              </button>
-              <button
-                type="button"
-                class="w-28 rounded bg-green-600 py-3 text-sm font-semibold text-white shadow-md hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600"
-                onclick="downloadPdb()"
-              >
-                <span class="text-white mr-1">
-                  <i class="bi bi-file-earmark-arrow-down-fill"></i>
-                </span>
-                PDB
-              </button>
-            </div>
-          </div>
         </div>
-        <div id="seq_coverage_container" class="flex-1 flex flex-col mt-6">
-          <div class="text-2xl font-bold tracking-tight text-gray-900 mb-6">Sequence Coverage</div>
-          <div class="flex-1 p-6 bg-white border rounded">
-            <div class="w-[660px] flex-1 flex justify-center items-center mx-auto">
-              <img id="seq_cov_img" class="max-h-[376px] w-auto" src="seq_coverage.png" />
+        <div>
+          <div id="plddt-title" class="text-4xl font-bold tracking-tight mb-6">pLDDT</div>
+          <div class="p-6 bg-white shadow-md rounded">
+            <div id="lddt_container" class="w-[660px] min-h-[600px] flex justify-center items-center mx-auto">
+              <div id="lddt_placeholder"></div>
             </div>
           </div>
         </div>
       </div>
-      <div class="flex-1 max-w-[720px]">
-        <div id="plddt-title" class="text-4xl font-bold tracking-tight mb-6">
-          Predicted local distance difference test (pLDDT)
-        </div>
-        <div class="p-6 bg-white shadow-md rounded">
-          <div id="lddt_container" class="w-[660px] min-h-[600px] flex justify-center items-center mx-auto">
-            <div id="lddt_placeholder"></div>
-          </div>
-        </div>
+      <div class="flex-1 w-[660px]">
+        <div class="text-4xl font-bold tracking-tight mb-6">Sequence Coverage</div>
+        <div id="seq_coverage_container" class="flex flex-col gap-12"></div>
       </div>
       <!--<div class="col" style="padding: 20px;"><img id="pae_img"  width="400px" src=""></div>-->
     </div>
@@ -429,7 +417,9 @@
     // NGL color schemes https://nglviewer.org/ngl/api/manual/usage/coloring.html
     const COLORSCHEME = confidenceScheme; //'bfactor'
 
-    const MODELS = ["ranked_0.pdb", "ranked_1.pdb", "ranked_2.pdb", "ranked_3.pdb", "ranked_4.pdb"];
+    const LDDT_AVERAGES = [];
+    const SEQ_COV_IMGS = [];
+    const MODELS = [];
 
     const MODELS_DATA = [
       "*_data_ranked_0.pdb*",
@@ -438,8 +428,6 @@
       "*_data_ranked_3.pdb*",
       "*_data_ranked_4.pdb*",
     ];
-
-    const SEQ_COV_IMGS = [];
 
     const COLORS = [
       "#636EFA",
@@ -453,8 +441,6 @@
       "#FF97FF",
       "#FECB52",
     ];
-
-    const LDDT_AVERAGES = [];
 
     let stage;
 
@@ -489,6 +475,7 @@
 
       generateButtons();
       generateLegend();
+      generateImages();
       renderTabs();
 
       while (true) {
@@ -772,12 +759,26 @@
         button.addEventListener("click", () => {
           state.selectedTab = index;
           document.getElementById("lddt-average").textContent = LDDT_AVERAGES[index];
-          // document.getElementById("seq_cov_img").src = SEQ_COV_IMGS[index];
           renderTabs();
         });
 
         li.appendChild(button);
         tabsList.appendChild(li);
+      });
+    }
+
+    function generateImages() {
+      const container = document.getElementById("seq_coverage_container");
+      SEQ_COV_IMGS.forEach((item, index) => {
+        const imgContainer = document.createElement("div");
+        imgContainer.className = "w-[660px] h-auto p-6 bg-white shadow-md rounded items-center";
+
+        const img = document.createElement("img");
+        img.src = item;
+        img.alt = `Sequence Coverage Image ${index + 1}`;
+
+        imgContainer.append(img);
+        container.append(imgContainer);
       });
     }
   </script>
