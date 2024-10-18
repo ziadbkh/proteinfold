@@ -204,30 +204,34 @@ workflow NFCORE_PROTEINFOLD {
             ch_report_input.map{[it[0], it[1]]},
             ch_report_input.map{[it[0], it[2]]},
             ch_report_input.map{it[0].model},
-            Channel.fromPath("$projectDir/assets/proteinfold_template.html").first()
+            Channel.fromPath("$projectDir/assets/proteinfold_template.html", checkIfExists: true).first()
         )
         ch_versions = ch_versions.mix(GENERATE_REPORT.out.versions)
 
-        ch_comparision_report_input = 
+        ch_comparision_report_files = 
         ch_report_input.filter{it[0]["model"] != "alphafold2"}
         if(params.mode.toLowerCase().split(",").contains("alphafold2")) {
-            ch_comparision_report_input = ch_comparision_report_input.mix(
+            ch_comparision_report_files = ch_comparision_report_files.mix(
                 ALPHAFOLD2
                 .out
-                .pdb
+                .pdb.map{[it[0], it[1][0]]}
                 .join(GENERATE_REPORT.out.sequence_coverage.filter{it[0]["model"] == "alphafold2"})
             )
         }
-        ch_comparision_report_input.view()
-        ch_comparision_report_input.groupTuple().view()
         
-        /*
+        ch_comparision_report_files.view()
+        ch_comparision_report_files
+            .map{[it[0]["id"], it[0], it[1], it[2]]}
+            .groupTuple(by: [0], size: params.mode.toLowerCase().split(",").size())
+            .set{ch_comparision_report_input}
+        
+        ch_comparision_report_input.view()
+
         COMPARE_STRUCTURES(
-            ch_comparision_report_input.map{[it[0], it[1]]},
-            ch_comparision_report_input.map{[it[0], it[2]]},
-            Channel.value("comparision"),
-            Channel.fromPath("$projectDir/assets/comparision_template.html").first()
-        )*/
+            ch_comparision_report_input.map{it[1][0]["model"] = params.mode.toLowerCase(); [it[1][0], it[2]]},
+            ch_comparision_report_input.map{it[1][0]["model"] = params.mode.toLowerCase(); [it[1][0], it[3]]},
+            Channel.fromPath("$projectDir/assets/comparison_template.html", checkIfExists: true).first()
+        )
 
     }
 

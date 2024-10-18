@@ -67,7 +67,7 @@ def generate_output(plddt_data, name, out_dir, generate_tsv, pdb):
         out_file.write(html_content)
 
 
-def align_structures(structures):
+def align_structures_old(structures):
     parser = PDB.PDBParser(QUIET=True)
     structures = [
         parser.get_structure(f"Structure_{i}", pdb) for i, pdb in enumerate(structures)
@@ -92,6 +92,38 @@ def align_structures(structures):
         aligned_structures.append(aligned_structure)
 
     return aligned_structures
+
+
+def align_structures(structures):
+    parser = PDB.PDBParser(QUIET=True)
+    structures = [
+        parser.get_structure(f"Structure_{i}", pdb) for i, pdb in enumerate(structures)
+    ]
+    ref_structure = structures[0]
+
+    common_atoms = set(f"{atom.get_parent().get_id()[1]}-{atom.name}" for atom in ref_structure.get_atoms())
+    for i, structure in enumerate(structures[1:], start=1):
+        common_atoms = common_atoms.intersection(set(f"{atom.get_parent().get_id()[1]}-{atom.name}" for atom in structure.get_atoms()))
+
+    ref_atoms = [atom for atom in ref_structure.get_atoms() if f"{atom.get_parent().get_id()[1]}-{atom.name}" in common_atoms]
+    #print(ref_atoms)
+    super_imposer = PDB.Superimposer()
+    aligned_structures = [structures[0]]  # Include the reference structure in the list
+
+    for i, structure in enumerate(structures[1:], start=1):
+        target_atoms = [atom for atom in structure.get_atoms() if f"{atom.get_parent().get_id()[1]}-{atom.name}" in common_atoms]
+
+        super_imposer.set_atoms(ref_atoms, target_atoms)
+        super_imposer.apply(structure.get_atoms())
+
+        aligned_structure = f"aligned_structure_{i}.pdb"
+        io = PDB.PDBIO()
+        io.set_structure(structure)
+        io.save(aligned_structure)
+        aligned_structures.append(aligned_structure)
+
+    return aligned_structures
+
 
 
 def pdb_to_lddt(pdb_files, generate_tsv):
@@ -151,7 +183,7 @@ parser.add_argument("--output_dir", dest="output_dir")
 parser.add_argument("--html_template", dest="html_template")
 parser.add_argument("--version", action="version", version=f"{version}")
 parser.set_defaults(output_dir="")
-parser.set_defaults(in_type="comparision")
+parser.set_defaults(in_type="comparison")
 parser.set_defaults(name="")
 args = parser.parse_args()
 

@@ -19,5 +19,5 @@ reports:
     display: "ALPHAFOLD2 - Foldseek output"
   "*_esmfold_foldseek.html":
     display: "ESMFOLD - Foldseek output"
-  "*_comparision_report.html":
-    display: "Structure comparision"
+  "*_comparison_report.html":
+    display: "Structure comparison"
