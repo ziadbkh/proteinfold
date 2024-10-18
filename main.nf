@@ -209,32 +209,25 @@ workflow NFCORE_PROTEINFOLD {
         ch_versions = ch_versions.mix(GENERATE_REPORT.out.versions)
 
         ch_comparision_report_input = 
-        COLABFOLD
-                .out
-                .pdb
-                .join(COLABFOLD.out.msa)
-                .join(GENERATE_REPORT.out.plddt.filter{it[0]["model"] == "colabfold"})
-        
-        ch_comparision_report_input = ch_comparision_report_input.join(
-        ALPHAFOLD2
+        ch_report_input.filter{it[0]["model"] != "alphafold2"}
+        if(params.mode.toLowerCase().split(",").contains("alphafold2")) {
+            ch_comparision_report_input = ch_comparision_report_input.mix(
+                ALPHAFOLD2
                 .out
                 .pdb
                 .join(GENERATE_REPORT.out.sequence_coverage.filter{it[0]["model"] == "alphafold2"})
-                .join(GENERATE_REPORT.out.plddt.filter{it[0]["model"] == "alphafold2"}))
-        
-        ch_comparision_report_input = ch_comparision_report_input.join(
-        ESMFOLD.out.pdb
-        .combine(Channel.fromPath("$projectDir/assets/NO_FILE"))
-        .join(GENERATE_REPORT.out.plddt.filter{it[0]["model"] == "esmfold"}))
-
+            )
+        }
         ch_comparision_report_input.view()
-
+        ch_comparision_report_input.groupTuple().view()
+        
+        /*
         COMPARE_STRUCTURES(
             ch_comparision_report_input.map{[it[0], it[1]]},
             ch_comparision_report_input.map{[it[0], it[2]]},
             Channel.value("comparision"),
             Channel.fromPath("$projectDir/assets/comparision_template.html").first()
-        )
+        )*/
 
     }
 

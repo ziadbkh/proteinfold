@@ -10,7 +10,6 @@ process COMPARE_STRUCTURES {
     input:
     tuple val(meta), path(pdb)
     tuple val(meta_msa), path(msa)
-    tuple val(meta_plddt), path(plddt)
     path(template)
 
     output:
@@ -24,7 +23,7 @@ process COMPARE_STRUCTURES {
     def args = task.ext.args ?: ''
 
     """
-    generate_comparison_report.py --type ${output_type} \\
+    generate_comparison_report.py \\
         --msa ${msa.join(' ')} \\
         --pdb ${pdb.join(' ')} \\
         --html_template ${template} \\
