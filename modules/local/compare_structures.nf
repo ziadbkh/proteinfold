@@ -1,5 +1,5 @@
 process COMPARE_STRUCTURES {
-    tag   "$meta.id-$meta.model"
+    tag   "$meta.id"
     label 'process_single'
 
     conda "bioconda::multiqc:1.21"

@@ -30,6 +30,7 @@ process RUN_ALPHAFOLD2_PRED {
 
     output:
     path ("${fasta.baseName}*")
+    tuple val(meta), path ("*.alphafold2.pdb"), emit: main_pdb
     tuple val(meta), path ("${fasta.baseName}/ranked*pdb"), emit: pdb
     tuple val(meta), path ("*_msa.tsv"), emit: msa
     tuple val(meta), path ("*_mqc.tsv"), emit: multiqc
@@ -51,7 +52,7 @@ process RUN_ALPHAFOLD2_PRED {
         --msa_path=${msa} \
         $args
 
-    cp "${fasta.baseName}"/ranked_0.pdb ./"${fasta.baseName}".alphafold.pdb
+    cp "${fasta.baseName}"/ranked_0.pdb ./"${fasta.baseName}".alphafold2.pdb
     cd "${fasta.baseName}"
     awk '{print \$6"\\t"\$11}' ranked_0.pdb | uniq > ranked_0_plddt.tsv
     for i in 1 2 3 4

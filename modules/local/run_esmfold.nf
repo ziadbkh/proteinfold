@@ -14,7 +14,7 @@ process RUN_ESMFOLD {
     val numRec
 
     output:
-    tuple val(meta), path ("${fasta.baseName}*.pdb")         , emit: pdb
+    tuple val(meta), path ("${fasta.baseName}.esmfold.pdb")  , emit: pdb
     tuple val(meta), path ("${fasta.baseName}_plddt_mqc.tsv"), emit: multiqc
     path "versions.yml", emit: versions
 
@@ -37,7 +37,7 @@ process RUN_ESMFOLD {
     echo -e Atom_serial_number"\\t"Atom_name"\\t"Residue_name"\\t"Residue_sequence_number"\\t"pLDDT > header.tsv
     cat header.tsv plddt.tsv > "${fasta.baseName}"_plddt_mqc.tsv
     mv  "${fasta.baseName}"*.pdb tmp.pdb
-    mv  tmp.pdb ${fasta.baseName}.pdb
+    mv  tmp.pdb ${fasta.baseName}.esmfold.pdb
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

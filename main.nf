@@ -62,6 +62,7 @@ workflow NFCORE_PROTEINFOLD {
     ch_multiqc  = Channel.empty()
     ch_versions = Channel.empty()
     ch_report_input = Channel.empty()
+    ch_comparision_report_files = Channel.empty()
     //
     // WORKFLOW: Run alphafold2
     //
@@ -208,30 +209,37 @@ workflow NFCORE_PROTEINFOLD {
         )
         ch_versions = ch_versions.mix(GENERATE_REPORT.out.versions)
 
-        ch_comparision_report_files = 
-        ch_report_input.filter{it[0]["model"] != "alphafold2"}
-        if(params.mode.toLowerCase().split(",").contains("alphafold2")) {
-            ch_comparision_report_files = ch_comparision_report_files.mix(
-                ALPHAFOLD2
-                .out
-                .pdb.map{[it[0], it[1][0]]}
-                .join(GENERATE_REPORT.out.sequence_coverage.filter{it[0]["model"] == "alphafold2"})
+        if (params.mode.toLowerCase().split(",").size() > 1){
+            ch_comparision_report_files = 
+            ch_report_input.filter{it[0]["model"] == "esmfold"}
+            if(params.mode.toLowerCase().split(",").contains("alphafold2")) {
+                ch_comparision_report_files = ch_comparision_report_files.mix(
+                    ALPHAFOLD2
+                    .out
+                    .main_pdb
+                    .join(GENERATE_REPORT.out.sequence_coverage.filter{it[0]["model"] == "alphafold2"})
+                )
+            }
+            if(params.mode.toLowerCase().split(",").contains("colabfold")) {
+                ch_comparision_report_files = ch_comparision_report_files.mix(
+                    COLABFOLD
+                    .out
+                    .main_pdb
+                    .join(COLABFOLD.out.msa)
+                )
+            }
+            ch_comparision_report_files
+                .map{[it[0]["id"], it[0], it[1], it[2]]}
+                .groupTuple(by: [0], size: params.mode.toLowerCase().split(",").size())
+                .set{ch_comparision_report_input}
+            ch_comparision_report_files.view()
+            COMPARE_STRUCTURES(
+                ch_comparision_report_input.map{it[1][0]["model"] = params.mode.toLowerCase(); [it[1][0], it[2]]},
+                ch_comparision_report_input.map{it[1][0]["model"] = params.mode.toLowerCase(); [it[1][0], it[3]]},
+                Channel.fromPath("$projectDir/assets/comparison_template.html", checkIfExists: true).first()
             )
         }
         
-        ch_comparision_report_files.view()
-        ch_comparision_report_files
-            .map{[it[0]["id"], it[0], it[1], it[2]]}
-            .groupTuple(by: [0], size: params.mode.toLowerCase().split(",").size())
-            .set{ch_comparision_report_input}
-        
-        ch_comparision_report_input.view()
-
-        COMPARE_STRUCTURES(
-            ch_comparision_report_input.map{it[1][0]["model"] = params.mode.toLowerCase(); [it[1][0], it[2]]},
-            ch_comparision_report_input.map{it[1][0]["model"] = params.mode.toLowerCase(); [it[1][0], it[3]]},
-            Channel.fromPath("$projectDir/assets/comparison_template.html", checkIfExists: true).first()
-        )
 
     }
 
