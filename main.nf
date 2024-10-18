@@ -36,6 +36,7 @@ include { getColabfoldAlphafold2Params     } from './subworkflows/local/utils_nf
 include { getColabfoldAlphafold2ParamsPath } from './subworkflows/local/utils_nfcore_proteinfold_pipeline'
 
 include { GENERATE_REPORT     } from './modules/local/generate_report'
+include { COMPARE_STRUCTURES   } from './modules/local/compare_structures'
 include { FOLDSEEK_EASYSEARCH } from './modules/nf-core/foldseek/easysearch/main'
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -206,6 +207,35 @@ workflow NFCORE_PROTEINFOLD {
             Channel.fromPath("$projectDir/assets/proteinfold_template.html").first()
         )
         ch_versions = ch_versions.mix(GENERATE_REPORT.out.versions)
+
+        ch_comparision_report_input = 
+        COLABFOLD
+                .out
+                .pdb
+                .join(COLABFOLD.out.msa)
+                .join(GENERATE_REPORT.out.plddt.filter{it[0]["model"] == "colabfold"})
+        
+        ch_comparision_report_input = ch_comparision_report_input.join(
+        ALPHAFOLD2
+                .out
+                .pdb
+                .join(GENERATE_REPORT.out.sequence_coverage.filter{it[0]["model"] == "alphafold2"})
+                .join(GENERATE_REPORT.out.plddt.filter{it[0]["model"] == "alphafold2"}))
+        
+        ch_comparision_report_input = ch_comparision_report_input.join(
+        ESMFOLD.out.pdb
+        .combine(Channel.fromPath("$projectDir/assets/NO_FILE"))
+        .join(GENERATE_REPORT.out.plddt.filter{it[0]["model"] == "esmfold"}))
+
+        ch_comparision_report_input.view()
+
+        COMPARE_STRUCTURES(
+            ch_comparision_report_input.map{[it[0], it[1]]},
+            ch_comparision_report_input.map{[it[0], it[2]]},
+            Channel.value("comparision"),
+            Channel.fromPath("$projectDir/assets/comparision_template.html").first()
+        )
+
     }
 
     if (params.foldseek_search == "easysearch"){

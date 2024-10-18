@@ -218,7 +218,7 @@ parser.add_argument("--output_dir", dest="output_dir")
 parser.add_argument("--html_template", dest="html_template")
 parser.add_argument("--version", action="version", version=f"{version}")
 parser.set_defaults(output_dir="")
-parser.set_defaults(in_type="ESMFOLD")
+parser.set_defaults(in_type="esmfold")
 parser.set_defaults(name="")
 args = parser.parse_args()
 
@@ -231,7 +231,7 @@ generate_output(
 print("generating html report...")
 
 structures = args.pdb
-structures.sort()
+#structures.sort()
 aligned_structures = align_structures(structures)
 
 io = PDB.PDBIO()
