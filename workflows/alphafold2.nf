@@ -58,7 +58,7 @@ workflow ALPHAFOLD2 {
     main:
     ch_multiqc_files = Channel.empty()
     ch_pdb           = Channel.empty()
-    ch_main_pdb           = Channel.empty()
+    ch_main_pdb      = Channel.empty()
     ch_msa           = Channel.empty()
 
     //
@@ -98,7 +98,7 @@ workflow ALPHAFOLD2 {
             ch_uniprot
         )
         ch_pdb         = ch_pdb.mix(RUN_ALPHAFOLD2.out.pdb)
-        ch_main_pdb    = ch_pdb.mix(RUN_ALPHAFOLD2.out.main_pdb)
+        ch_main_pdb    = ch_main_pdb.mix(RUN_ALPHAFOLD2.out.main_pdb)
         ch_msa         = ch_msa.mix(RUN_ALPHAFOLD2.out.msa)
         ch_multiqc_rep = RUN_ALPHAFOLD2.out.multiqc.map{it[1]}.collect()
         ch_versions    = ch_versions.mix(RUN_ALPHAFOLD2.out.versions)
@@ -141,7 +141,7 @@ workflow ALPHAFOLD2 {
             RUN_ALPHAFOLD2_MSA.out.features
         )
         ch_pdb         = ch_pdb.mix(RUN_ALPHAFOLD2_PRED.out.pdb)
-        ch_main_pdb    = ch_pdb.mix(RUN_ALPHAFOLD2_PRED.out.main_pdb)
+        ch_main_pdb    = ch_main_pdb.mix(RUN_ALPHAFOLD2_PRED.out.main_pdb)
         ch_msa         = ch_msa.mix(RUN_ALPHAFOLD2_PRED.out.msa)
         ch_multiqc_rep = RUN_ALPHAFOLD2_PRED.out.multiqc.map{it[1]}.collect()
         ch_versions = ch_versions.mix(RUN_ALPHAFOLD2_PRED.out.versions)

@@ -62,10 +62,11 @@ workflow NFCORE_PROTEINFOLD {
     ch_multiqc  = Channel.empty()
     ch_versions = Channel.empty()
     ch_report_input = Channel.empty()
+    requested_modes = params.mode.toLowerCase().split(",") 
     //
     // WORKFLOW: Run alphafold2
     //
-    if(params.mode.toLowerCase().split(",").contains("alphafold2")) {
+    if(requested_modes.contains("alphafold2")) {
         //
         // SUBWORKFLOW: Prepare Alphafold2 DBs
         //
@@ -127,7 +128,7 @@ workflow NFCORE_PROTEINFOLD {
     //
     // WORKFLOW: Run colabfold
     //
-    if(params.mode.toLowerCase().split(",").contains("colabfold")) {
+    if(requested_modes.contains("colabfold")) {
         //
         // SUBWORKFLOW: Prepare Colabfold DBs
         //
@@ -169,7 +170,7 @@ workflow NFCORE_PROTEINFOLD {
     //
     // WORKFLOW: Run esmfold
     //
-    if(params.mode.toLowerCase().split(",").contains("esmfold")) {
+    if(requested_modes.contains("esmfold")) {
         //
         // SUBWORKFLOW: Prepare esmfold DBs
         //
@@ -208,37 +209,29 @@ workflow NFCORE_PROTEINFOLD {
         )
         ch_versions = ch_versions.mix(GENERATE_REPORT.out.versions)
 
-        if (params.mode.toLowerCase().split(",").size() > 1){
+        if (requested_modes.size() > 1){
             
             ch_comparision_report_files = 
             ch_report_input.filter{it[0]["model"] == "esmfold"}
-            if(params.mode.toLowerCase().split(",").contains("alphafold2")) {
+            if (requested_modes.contains("alphafold2")) {
                 ch_comparision_report_files = ch_comparision_report_files.mix(
                     ALPHAFOLD2
                     .out
                     .main_pdb
-                    .join(GENERATE_REPORT.out.sequence_coverage.filter{it[0]["model"] == "alphafold2"})
+                    .join(GENERATE_REPORT.out.sequence_coverage.filter{it[0]["model"] == "alphafold2"}, remainder:true)
                 )
-                ALPHAFOLD2
-                    .out
-                    .main_pdb
-                    .join(GENERATE_REPORT.out.sequence_coverage.filter{it[0]["model"] == "alphafold2"}).view()
             }
-            if(params.mode.toLowerCase().split(",").contains("colabfold")) {
+            if (requested_modes.contains("colabfold")) {
                 ch_comparision_report_files = ch_comparision_report_files.mix(
                     COLABFOLD
                     .out
                     .main_pdb
-                    .join(COLABFOLD.out.msa)
-                    COLABFOLD
-                    .out
-                    .main_pdb
-                    .join(COLABFOLD.out.msa).view()
+                    .join(COLABFOLD.out.msa, remainder:true)
                 )
             }
             ch_comparision_report_files
                 .map{[it[0]["id"], it[0], it[1], it[2]]}
-                .groupTuple(by: [0], size: params.mode.toLowerCase().split(",").size())
+                .groupTuple(by: [0], size: requested_modes.size())
                 .set{ch_comparision_report_input}
             
             ch_comparision_report_files.view()
