@@ -3,6 +3,7 @@
 import os
 import argparse
 from collections import OrderedDict
+import base64
 import plotly.graph_objects as go
 from Bio import PDB
 
@@ -214,10 +215,16 @@ alphafold_template = alphafold_template.replace(
     "const MODELS = [];", args_pdb_array_js
 )
 
-args_msa_array_js = "const SEQ_COV_IMGS = [" + ", ".join([f'"{item}"' for item in args.msa if item != "NO_FILE"]) + "];"
-alphafold_template = alphafold_template.replace(
-    "const SEQ_COV_IMGS = [];", args_msa_array_js
-)
+seq_cov_imgs = []
+for item in args.msa:
+    if item != "NO_FILE":
+        image_path = item
+        with open(image_path, "rb") as in_file:
+            encoded_image = base64.b64encode(in_file.read()).decode("utf-8")
+            seq_cov_imgs.append(f"data:image/png;base64,{encoded_image}")
+
+args_msa_array_js = f"""const SEQ_COV_IMGS = [{", ".join([f'"{img}"' for img in seq_cov_imgs])}];"""
+alphafold_template = alphafold_template.replace("const SEQ_COV_IMGS = [];", args_msa_array_js)
 
 averages_js_array = f"const LDDT_AVERAGES = {lddt_averages};"
 alphafold_template = alphafold_template.replace(

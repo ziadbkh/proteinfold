@@ -507,7 +507,7 @@
     // Representations ---------------------------------------------------------
 
     const toggleModel = (modelIndex) => {
-      const button = document.getElementById(`btn-${MODELS[modelIndex].split(".")[0]}`);
+      const button = document.getElementById(`btn-${MODELS[modelIndex].replace(".pdb", "")}`);
 
       if (state.models[modelIndex].reprList.length > 0) {
         removeModel(modelIndex);
@@ -672,8 +672,12 @@
     };
 
     const downloadPdb = () => {
-      const url = uri(state.selectedTab);
+      const blob = new Blob([uri(state.selectedTab)], {
+        type: "text/plain",
+      });
       const name = `${MODELS[state.selectedTab]}`;
+      const url = URL.createObjectURL(blob);
+
       makeDownload(url, name);
     };
 
@@ -700,8 +704,8 @@
       MODELS.forEach((model, index) => {
         const button = document.createElement("button");
         button.className =
-          "btn selected w-28 rounded-md bg-white border-2 border-gray-300 py-3 text-sm font-semibold text-gray-800 shadow-md hover:border-gray-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-800";
-        button.id = `btn-${model.split(".")[0]}`;
+          "btn selected w-48 truncate rounded-md bg-white border-2 border-gray-300 px-2 py-3 text-sm font-semibold text-gray-800 shadow-md hover:border-gray-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-800";
+        button.id = `btn-${model.replace(".pdb", "")}`;
         button.onclick = () => toggleModel(index);
 
         const span = document.createElement("span");
@@ -710,7 +714,7 @@
         const icon = document.createElement("i");
         icon.className = "bi bi-check-circle-fill";
 
-        const text = document.createTextNode(`${model.split(".")[0]}`);
+        const text = document.createTextNode(`${model.replace(".pdb", "")}`);
 
         span.appendChild(icon);
         button.appendChild(span);
@@ -724,9 +728,9 @@
 
       MODELS.forEach((model, index) => {
         const div = document.createElement("div");
-        div.className = "flex gap-3 justify-between items-center leading-loose";
+        div.className = "flex gap-3 items-center leading-loose";
 
-        const text = `${model.split(".")[0]}`;
+        const text = `${model.replace(".pdb", "")}`;
         const color = document.createElement("div");
         color.className = `h-3 w-3 rounded-full bg-[${COLORS[index]}]`;
 
@@ -754,7 +758,7 @@
           button.classList.add("border-transparent", "hover:text-gray-600", "hover:border-gray-300");
         }
 
-        button.textContent = `${model.split(".")[0]}`;
+        button.textContent = `${model.replace(".pdb", "")}`;
 
         button.addEventListener("click", () => {
           state.selectedTab = index;
