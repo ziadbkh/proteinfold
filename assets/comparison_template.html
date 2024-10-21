@@ -704,7 +704,7 @@
       MODELS.forEach((model, index) => {
         const button = document.createElement("button");
         button.className =
-          "btn selected rounded-md bg-white border-2 border-gray-300 px-2 py-3 text-sm font-semibold text-gray-800 shadow-md hover:border-gray-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-800";
+          "btn selected w-48 truncate rounded-md bg-white border-2 border-gray-300 px-2 py-3 text-sm font-semibold text-gray-800 shadow-md hover:border-gray-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-800";
         button.id = `btn-${model.replace(".pdb", "")}`;
         button.onclick = () => toggleModel(index);
 
