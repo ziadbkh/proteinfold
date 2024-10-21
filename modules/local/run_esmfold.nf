@@ -37,7 +37,7 @@ process RUN_ESMFOLD {
     echo -e Atom_serial_number"\\t"Atom_name"\\t"Residue_name"\\t"Residue_sequence_number"\\t"pLDDT > header.tsv
     cat header.tsv plddt.tsv > "${fasta.baseName}"_plddt_mqc.tsv
     mv  "${fasta.baseName}"*.pdb tmp.pdb
-    mv  tmp.pdb ${fasta.baseName}.esmfold.pdb
+    mv  tmp.pdb ${fasta.baseName}_esmfold.pdb
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

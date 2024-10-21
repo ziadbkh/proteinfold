@@ -65,7 +65,7 @@ workflow NFCORE_PROTEINFOLD {
     ch_multiqc      = Channel.empty()
     ch_versions     = Channel.empty()
     ch_report_input = Channel.empty()
-    requested_modes = params.mode.toLowerCase().split(",") 
+    requested_modes = params.mode.toLowerCase().split(",")
     //
     // WORKFLOW: Run alphafold2
     //
@@ -215,7 +215,7 @@ workflow NFCORE_PROTEINFOLD {
         ch_versions = ch_versions.mix(GENERATE_REPORT.out.versions)
 
         if (requested_modes.size() > 1){
-            ch_comparision_report_files = 
+            ch_comparision_report_files =
             ch_report_input.filter{it[0]["model"] == "esmfold"}
             if (requested_modes.contains("alphafold2")) {
                 ch_comparision_report_files = ch_comparision_report_files.mix(

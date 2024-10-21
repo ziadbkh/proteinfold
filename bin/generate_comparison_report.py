@@ -102,17 +102,33 @@ def align_structures(structures):
     ]
     ref_structure = structures[0]
 
-    common_atoms = set(f"{atom.get_parent().get_id()[1]}-{atom.name}" for atom in ref_structure.get_atoms())
+    common_atoms = set(
+        f"{atom.get_parent().get_id()[1]}-{atom.name}"
+        for atom in ref_structure.get_atoms()
+    )
     for i, structure in enumerate(structures[1:], start=1):
-        common_atoms = common_atoms.intersection(set(f"{atom.get_parent().get_id()[1]}-{atom.name}" for atom in structure.get_atoms()))
+        common_atoms = common_atoms.intersection(
+            set(
+                f"{atom.get_parent().get_id()[1]}-{atom.name}"
+                for atom in structure.get_atoms()
+            )
+        )
 
-    ref_atoms = [atom for atom in ref_structure.get_atoms() if f"{atom.get_parent().get_id()[1]}-{atom.name}" in common_atoms]
-    #print(ref_atoms)
+    ref_atoms = [
+        atom
+        for atom in ref_structure.get_atoms()
+        if f"{atom.get_parent().get_id()[1]}-{atom.name}" in common_atoms
+    ]
+    # print(ref_atoms)
     super_imposer = PDB.Superimposer()
     aligned_structures = [structures[0]]  # Include the reference structure in the list
 
     for i, structure in enumerate(structures[1:], start=1):
-        target_atoms = [atom for atom in structure.get_atoms() if f"{atom.get_parent().get_id()[1]}-{atom.name}" in common_atoms]
+        target_atoms = [
+            atom
+            for atom in structure.get_atoms()
+            if f"{atom.get_parent().get_id()[1]}-{atom.name}" in common_atoms
+        ]
 
         super_imposer.set_atoms(ref_atoms, target_atoms)
         super_imposer.apply(structure.get_atoms())
@@ -124,7 +140,6 @@ def align_structures(structures):
         aligned_structures.append(aligned_structure)
 
     return aligned_structures
-
 
 
 def pdb_to_lddt(pdb_files, generate_tsv):
@@ -190,14 +205,12 @@ args = parser.parse_args()
 
 lddt_data, lddt_averages = pdb_to_lddt(args.pdb, args.generate_tsv)
 
-generate_output(
-    lddt_data, args.name, args.output_dir, args.generate_tsv, args.pdb
-)
+generate_output(lddt_data, args.name, args.output_dir, args.generate_tsv, args.pdb)
 
 print("generating html report...")
 
 structures = args.pdb
-#structures.sort()
+# structures.sort()
 aligned_structures = align_structures(structures)
 
 io = PDB.PDBIO()
@@ -210,10 +223,10 @@ alphafold_template = open(args.html_template, "r").read()
 alphafold_template = alphafold_template.replace("*sample_name*", args.name)
 alphafold_template = alphafold_template.replace("*prog_name*", args.in_type)
 
-args_pdb_array_js = "const MODELS = [" + ",\n".join([f'"{model}"' for model in structures]) + "];"
-alphafold_template = alphafold_template.replace(
-    "const MODELS = [];", args_pdb_array_js
+args_pdb_array_js = (
+    "const MODELS = [" + ",\n".join([f'"{model}"' for model in structures]) + "];"
 )
+alphafold_template = alphafold_template.replace("const MODELS = [];", args_pdb_array_js)
 
 seq_cov_imgs = []
 for item in args.msa:
@@ -223,8 +236,12 @@ for item in args.msa:
             encoded_image = base64.b64encode(in_file.read()).decode("utf-8")
             seq_cov_imgs.append(f"data:image/png;base64,{encoded_image}")
 
-args_msa_array_js = f"""const SEQ_COV_IMGS = [{", ".join([f'"{img}"' for img in seq_cov_imgs])}];"""
-alphafold_template = alphafold_template.replace("const SEQ_COV_IMGS = [];", args_msa_array_js)
+args_msa_array_js = (
+    f"""const SEQ_COV_IMGS = [{", ".join([f'"{img}"' for img in seq_cov_imgs])}];"""
+)
+alphafold_template = alphafold_template.replace(
+    "const SEQ_COV_IMGS = [];", args_msa_array_js
+)
 
 averages_js_array = f"const LDDT_AVERAGES = {lddt_averages};"
 alphafold_template = alphafold_template.replace(
@@ -247,5 +264,7 @@ with open(
         '<div id="lddt_placeholder"></div>', lddt_html
     )
 
-with open(f"{args.output_dir}/{args.name}_{args.in_type.lower()}_report.html", "w") as out_file:
+with open(
+    f"{args.output_dir}/{args.name}_{args.in_type.lower()}_report.html", "w"
+) as out_file:
     out_file.write(alphafold_template)

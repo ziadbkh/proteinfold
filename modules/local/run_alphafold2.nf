@@ -66,7 +66,7 @@ process RUN_ALPHAFOLD2 {
         --random_seed=53343 \
         $args
 
-    cp "${fasta.baseName}"/ranked_0.pdb ./"${fasta.baseName}".alphafold2.pdb
+    cp "${fasta.baseName}"/ranked_0.pdb ./"${fasta.baseName}"_alphafold2.pdb
     cd "${fasta.baseName}"
     awk '{print \$6"\\t"\$11}' ranked_0.pdb | uniq > ranked_0_plddt.tsv
     for i in 1 2 3 4
