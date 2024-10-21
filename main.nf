@@ -122,7 +122,6 @@ workflow NFCORE_PROTEINFOLD {
         ch_report_input = ch_report_input.mix(
             ALPHAFOLD2.out.pdb.join(ALPHAFOLD2.out.msa).map{it[0]["model"] = "alphafold2"; it}
         )
-
     }
 
     //
@@ -210,7 +209,6 @@ workflow NFCORE_PROTEINFOLD {
         ch_versions = ch_versions.mix(GENERATE_REPORT.out.versions)
 
         if (requested_modes.size() > 1){
-            
             ch_comparision_report_files = 
             ch_report_input.filter{it[0]["model"] == "esmfold"}
             if (requested_modes.contains("alphafold2")) {
@@ -233,9 +231,7 @@ workflow NFCORE_PROTEINFOLD {
                 .map{[it[0]["id"], it[0], it[1], it[2]]}
                 .groupTuple(by: [0], size: requested_modes.size())
                 .set{ch_comparision_report_input}
-            
-            ch_comparision_report_files.view()
-            ch_comparision_report_input.view()
+
             COMPARE_STRUCTURES(
                 ch_comparision_report_input.map{it[1][0]["model"] = params.mode.toLowerCase(); [it[1][0], it[2]]},
                 ch_comparision_report_input.map{it[1][0]["model"] = params.mode.toLowerCase(); [it[1][0], it[3]]},
