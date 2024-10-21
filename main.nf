@@ -229,7 +229,6 @@ workflow NFCORE_PROTEINFOLD {
                             .filter{it[0]["model"] == "alphafold2"}
                             .map{[it[0]["id"], it[1]]}, remainder:true
                     )
-
                 )
             }
             if (requested_modes.contains("colabfold")) {
@@ -239,16 +238,16 @@ workflow NFCORE_PROTEINFOLD {
                     .main_pdb
                     .map{[it[0]["id"], it[0], it[1]]}
                     .join(COLABFOLD.out.msa
-                            .map{[it[0]["id"], it[1]]}, 
+                            .map{[it[0]["id"], it[1]]},
                         remainder:true
                     )
                 )
             }
-            //ch_comparision_report_files.view()
+
             ch_comparision_report_files
                 .groupTuple(by: [0], size: requested_modes.size())
                 .set{ch_comparision_report_input}
-            
+
             COMPARE_STRUCTURES(
                 ch_comparision_report_input.map{it[1][0]["model"] = params.mode.toLowerCase(); [it[1][0], it[2]]},
                 ch_comparision_report_input.map{it[1][0]["model"] = params.mode.toLowerCase(); [it[1][0], it[3]]},
