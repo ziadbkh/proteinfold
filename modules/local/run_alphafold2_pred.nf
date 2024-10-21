@@ -30,7 +30,7 @@ process RUN_ALPHAFOLD2_PRED {
 
     output:
     path ("${fasta.baseName}*")
-    tuple val(meta), path ("*.alphafold2.pdb"), emit: main_pdb
+    tuple val(meta), path ("*_alphafold2.pdb"), emit: main_pdb
     tuple val(meta), path ("${fasta.baseName}/ranked*pdb"), emit: pdb
     tuple val(meta), path ("*_msa.tsv"), emit: msa
     tuple val(meta), path ("*_mqc.tsv"), emit: multiqc
@@ -73,7 +73,7 @@ process RUN_ALPHAFOLD2_PRED {
 
     stub:
     """
-    touch ./"${fasta.baseName}".alphafold.pdb
+    touch ./"${fasta.baseName}"_alphafold.pdb
     touch ./"${fasta.baseName}"_mqc.tsv
     mkdir "${fasta.baseName}"
     touch "${fasta.baseName}/ranked_0.pdb"

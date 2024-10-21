@@ -14,7 +14,7 @@ process RUN_ESMFOLD {
     val numRec
 
     output:
-    tuple val(meta), path ("${fasta.baseName}.esmfold.pdb")  , emit: pdb
+    tuple val(meta), path ("${fasta.baseName}_esmfold.pdb")  , emit: pdb
     tuple val(meta), path ("${fasta.baseName}_plddt_mqc.tsv"), emit: multiqc
     path "versions.yml", emit: versions
 
@@ -48,8 +48,8 @@ process RUN_ESMFOLD {
     stub:
     def VERSION = '1.0.3' // WARN: Version information not provided by tool on CLI. Please update this string when bumping container versions.
     """
-    touch ./"${fasta.baseName}".pdb
-    touch ./"${fasta.baseName}"_plddt_mqc.tsv
+    touch ./${fasta.baseName}_esmfold.pdb
+    touch ./${fasta.baseName}_plddt_mqc.tsv
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

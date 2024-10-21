@@ -18,7 +18,7 @@ process COLABFOLD_BATCH {
     val   numRec
 
     output:
-    tuple val(meta), path ("*.colabfold.pdb"), emit: main_pdb
+    tuple val(meta), path ("*_colabfold.pdb"), emit: main_pdb
     tuple val(meta), path ("*_relaxed_rank_*.pdb"), emit: pdb
     tuple val(meta), path ("*_coverage.png")      , emit: msa
     tuple val(meta), path ("*_mqc.png")           , emit: multiqc
@@ -42,7 +42,7 @@ process COLABFOLD_BATCH {
         \$PWD
     for i in `find *_relaxed_rank_001*.pdb`; do cp \$i `echo \$i | sed "s|_relaxed_rank_|\t|g" | cut -f1`"_colabfold.pdb"; done
     for i in `find *.png -maxdepth 0`; do cp \$i \${i%'.png'}_mqc.png; done
-    cp *_relaxed_rank_001*.pdb ${fasta.baseName}.colabfold.pdb
+    cp *_relaxed_rank_001*.pdb ${fasta.baseName}_colabfold.pdb
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
