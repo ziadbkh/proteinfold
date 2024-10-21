@@ -217,12 +217,19 @@ workflow NFCORE_PROTEINFOLD {
         if (requested_modes.size() > 1){
             ch_comparision_report_files =
             ch_report_input.filter{it[0]["model"] == "esmfold"}
+            .map{[it[0]["id"], it[0], it[1], it[2]]}
+
             if (requested_modes.contains("alphafold2")) {
                 ch_comparision_report_files = ch_comparision_report_files.mix(
                     ALPHAFOLD2
                     .out
                     .main_pdb
-                    .join(GENERATE_REPORT.out.sequence_coverage.filter{it[0]["model"] == "alphafold2"}, remainder:true)
+                    .map{[it[0]["id"], it[0], it[1]]}
+                    .join(GENERATE_REPORT.out.sequence_coverage
+                            .filter{it[0]["model"] == "alphafold2"}
+                            .map{[it[0]["id"], it[1]]}, remainder:true
+                    )
+
                 )
             }
             if (requested_modes.contains("colabfold")) {
@@ -230,14 +237,18 @@ workflow NFCORE_PROTEINFOLD {
                     COLABFOLD
                     .out
                     .main_pdb
-                    .join(COLABFOLD.out.msa, remainder:true)
+                    .map{[it[0]["id"], it[0], it[1]]}
+                    .join(COLABFOLD.out.msa
+                            .map{[it[0]["id"], it[1]]}, 
+                        remainder:true
+                    )
                 )
             }
+            //ch_comparision_report_files.view()
             ch_comparision_report_files
-                .map{[it[0]["id"], it[0], it[1], it[2]]}
                 .groupTuple(by: [0], size: requested_modes.size())
                 .set{ch_comparision_report_input}
-
+            
             COMPARE_STRUCTURES(
                 ch_comparision_report_input.map{it[1][0]["model"] = params.mode.toLowerCase(); [it[1][0], it[2]]},
                 ch_comparision_report_input.map{it[1][0]["model"] = params.mode.toLowerCase(); [it[1][0], it[3]]},
