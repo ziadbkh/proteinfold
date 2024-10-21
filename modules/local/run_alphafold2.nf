@@ -88,7 +88,7 @@ process RUN_ALPHAFOLD2 {
 
     stub:
     """
-    touch ./"${fasta.baseName}"_alphafold.pdb
+    touch ./"${fasta.baseName}"_alphafold2.pdb
     touch ./"${fasta.baseName}"_mqc.tsv
     mkdir "${fasta.baseName}"
     touch "${fasta.baseName}/ranked_0.pdb"
