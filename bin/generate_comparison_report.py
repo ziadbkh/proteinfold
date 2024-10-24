@@ -50,7 +50,7 @@ def generate_output(plddt_data, name, out_dir, generate_tsv, pdb):
             linecolor="black",
             gridcolor="WhiteSmoke",
         ),
-        legend=dict(yanchor="bottom", y=0, xanchor="right", x=1.3),
+        legend=dict(y=0, x=1),
         plot_bgcolor="white",
         width=600,
         height=600,
