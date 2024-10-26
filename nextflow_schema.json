@@ -27,18 +27,20 @@
                     "type": "string",
                     "format": "directory-path",
                     "description": "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure.",
-                    "fa_icon": "fas fa-folder-open"
+                    "fa_icon": "fas fa-folder-open",
+                    "default": "/scratch/ll61/demo-out/"
                 },
                 "mode": {
                     "type": "string",
-                    "default": "alphafold2",
+                    "default": "alphafold2,esmfold,colabfold",
                     "description": "Specifies the mode in which the pipeline will be run. mode can be any combination of ['alphafold2', 'colabfold', 'esmfold'] separated by a comma (',') with no spaces.",
                     "fa_icon": "fas fa-cogs"
                 },
                 "use_gpu": {
                     "type": "boolean",
                     "description": "Run on CPUs (default) or GPUs",
-                    "fa_icon": "fas fa-microchip"
+                    "fa_icon": "fas fa-microchip",
+                    "default": true
                 },
                 "email": {
                     "type": "string",
@@ -71,7 +73,8 @@
                     "format": "path",
                     "exists": true,
                     "description": "Specifies the DB and PARAMS path used by 'AlphaFold2' mode",
-                    "fa_icon": "fas fa-database"
+                    "fa_icon": "fas fa-database",
+                    "default": "/g/data/if89/proteinfold_dbs/alphafold2_dbs/"
                 },
                 "full_dbs": {
                     "type": "boolean",
@@ -202,7 +205,7 @@
                 "foldseek_search": {
                     "type": "string",
                     "enum": [null, "easysearch"],
-                    "default": null,
+                    "default": "easysearch",
                     "description": "Specifies the mode of foldseek search.",
                     "fa_icon": "fas fa-search"
                 },
