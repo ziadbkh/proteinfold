@@ -81,7 +81,7 @@ workflow INTERACTIONS {
             [it[1], it[2], it[4], it[5]].unique{it.toUriString()}
     ]}.set{ch_pairs}
 
-    ch_pairs.view()
+    //ch_pairs.view()
     //ch_pairs.main.view()
     
     PREPARE_INTERACTIONS(

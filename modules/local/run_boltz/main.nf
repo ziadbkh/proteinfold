@@ -5,7 +5,7 @@ process RUN_BOLTZ {
     tag "$meta.id"
     label 'process_medium'
 
-    container "/srv/scratch/sbf-pipelines/proteinfold/singularity/boltz.sif"
+    container "quay.io/nf-core/proteinfold_boltz:dev"
     
     input:
     tuple val(meta), path(fasta)
@@ -21,6 +21,6 @@ process RUN_BOLTZ {
     
     script:
     """
-    boltz predict --output_format pdb --use_msa_server "./${fasta.name}" --cache ./
+    boltz predict --output_format pdb "./${fasta.name}" --cache ./
     """
 }

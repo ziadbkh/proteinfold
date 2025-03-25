@@ -22,13 +22,20 @@ process PREPARE_INTERACTIONS {
     """
     #!/usr/bin/env python3
     import os, sys
+    import string
+    #from itertools import product
+    
+    #single_letters = list(string.ascii_uppercase)
+    #two_letter_combinations = [''.join(p) for p in product(string.ascii_uppercase, repeat=2)]
+    #all_combinations = single_letters + two_letter_combinations
+    all_combinations = list(string.ascii_uppercase) + list(string.ascii_lowercase) + [str(x) for x in range(0, 10)]
     fasta_files = ["${fasta.join('", "')}"]
     a3m_files = ["${a3m.join('", "')}"]
     if len(fasta_files) != len(a3m_files):
         raise ValueError("FASTA and A3M file lists must be of the same length and order.")
 
     output_file = "${meta.id}_boltz_interaction_input.fasta"
-
+    counter = 0
     with open(output_file, "w") as outfile:
         for fasta, a3m in zip(fasta_files, a3m_files):
             with open(fasta, "r") as f:
@@ -37,7 +44,9 @@ process PREPARE_INTERACTIONS {
             if not lines:
                 continue  # Skip empty FASTA files
 
-            header = lines[0].strip()
+            #header = lines[0].strip()
+            header = f">{all_combinations[counter]}"
+            counter += 1
             body = lines[1:]
             if header[-1] == "|":
                 new_header = f"{header}protein|{os.path.basename(a3m)}\\n"
