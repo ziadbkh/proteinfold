@@ -33,6 +33,12 @@ if (params.mode.toLowerCase().split(",").contains("boltz")) {
     include { BOLTZ } from './workflows/boltz'
 }
 
+if (params.mode.toLowerCase().split(",").contains("interactions")) {
+    include { PREPARE_COLABFOLD_DBS } from './subworkflows/local/prepare_colabfold_dbs'
+    include { PREPARE_BOLTZ_DBS } from './subworkflows/local/prepare_boltz_dbs'
+    include { INTERACTIONS } from './workflows/interactions'
+}
+
 include { PIPELINE_INITIALISATION          } from './subworkflows/local/utils_nfcore_proteinfold_pipeline'
 include { PIPELINE_COMPLETION              } from './subworkflows/local/utils_nfcore_proteinfold_pipeline'
 include { getColabfoldAlphafold2Params     } from './subworkflows/local/utils_nfcore_proteinfold_pipeline'
@@ -251,6 +257,40 @@ workflow NFCORE_PROTEINFOLD {
         ch_report_input             = ch_report_input.mix(BOLTZ.out.msa)
     }
 
+    if (params.mode.toLowerCase().split(",").contains("interactions")) {
+        PREPARE_BOLTZ_DBS(
+            params.boltz_ccd_path,
+            params.boltz_model_path,
+            params.boltz_ccd_link,
+            params.boltz_model_link
+        )
+        ch_versions = ch_versions.mix(PREPARE_BOLTZ_DBS.out.versions)
+
+        PREPARE_COLABFOLD_DBS (
+            params.colabfold_db,
+            params.colabfold_server,
+            params.colabfold_alphafold2_params_path,
+            params.colabfold_db_path,
+            params.uniref30_colabfold_path,
+            params.colabfold_alphafold2_params_link,
+            params.colabfold_db_link,
+            params.uniref30_colabfold_link,
+            params.create_colabfold_index
+        )
+        ch_versions = ch_versions.mix(PREPARE_COLABFOLD_DBS.out.versions)
+
+        INTERACTIONS (
+            ch_samplesheet,
+            params.samplesheet2,
+            ch_versions,
+            PREPARE_BOLTZ_DBS.out.boltz_ccd,
+            PREPARE_BOLTZ_DBS.out.boltz_model,
+            PREPARE_COLABFOLD_DBS.out.params,
+            PREPARE_COLABFOLD_DBS.out.colabfold_db,
+            PREPARE_COLABFOLD_DBS.out.uniref30,
+        )
+        ch_versions = ch_versions.mix(INTERACTIONS.out.versions)
+    }
     //
     // POST PROCESSING: generate visualisation reports
     //

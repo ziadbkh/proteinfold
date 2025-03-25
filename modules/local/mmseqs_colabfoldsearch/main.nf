@@ -21,7 +21,7 @@ process MMSEQS_COLABFOLDSEARCH {
 
     when:
     task.ext.when == null || task.ext.when
-h za
+
     script:
     def args = task.ext.args ?: ''
     def VERSION = '1.5.2' // WARN: Version information not provided by tool on CLI. Please update this string when bumping container versions.
