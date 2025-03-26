@@ -29,4 +29,21 @@ process RUN_BOLTZ {
     """
     boltz predict --output_format pdb ${args} "${fasta}" --cache ./
     """
+    stub:
+    """
+    mkdir -p boltz_results_S1/processed/msa/
+    mkdir -p boltz_results_S1/processed/structures/
+    mkdir -p boltz_results_S1/predictions/S1/
+    
+    touch boltz_results_S1/processed/msa/S1.npz
+    touch boltz_results_S1/processed/structures/S1.npz
+    touch boltz_results_S1/predictions/S1/confidence_S1.json
+    touch boltz_results_S1/predictions/S1/S1.pdb
+    
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        python: \$(python3 --version | sed 's/Python //g')
+    END_VERSIONS
+    """
 }

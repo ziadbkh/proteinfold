@@ -314,6 +314,7 @@ workflow NFCORE_PROTEINFOLD {
     ch_report_template     = Channel.value(file("$projectDir/assets/report_template.html", checkIfExists: true))
     ch_comparison_template = Channel.value(file("$projectDir/assets/comparison_template.html", checkIfExists: true))
 
+    if (!params.mode.toLowerCase().split(",").contains("interactions")) {
     POST_PROCESSING(
         params.skip_visualisation,
         params.mode,
@@ -334,7 +335,7 @@ workflow NFCORE_PROTEINFOLD {
         ch_alphafold_top_ranked_pdb,
         ch_colabfold_top_ranked_pdb,
         ch_esmfold_top_ranked_pdb
-    )
+    )}
 
     emit:
     multiqc_report = ch_multiqc
