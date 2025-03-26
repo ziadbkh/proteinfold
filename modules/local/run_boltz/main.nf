@@ -12,6 +12,7 @@ process RUN_BOLTZ {
     path (files)
     path ('boltz1_conf.ckpt')
     path ('ccd.pkl')
+    val (use_msa_server)
     
     output:
     tuple val(meta), path ("boltz_results_*/processed/msa/*.npz"), emit: msa
@@ -25,6 +26,9 @@ process RUN_BOLTZ {
     
     script:
     def args = task.ext.args ?: ''
+    if (use_msa_server) {
+        args += '--use_msa_server'
+    }
 
     """
     boltz predict --output_format pdb ${args} "${fasta}" --cache ./
