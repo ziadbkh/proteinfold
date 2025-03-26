@@ -83,20 +83,40 @@ workflow INTERACTIONS {
 
     //ch_pairs.view()
     //ch_pairs.main.view()
+    ch_pairs
+    .join(ch_unique_pairs)
+    .set{ch_interaction_input}
     
     PREPARE_INTERACTIONS(
-        ch_pairs.join(ch_unique_pairs)
+        ch_interaction_input
     )
-    PREPARE_INTERACTIONS.out.fasta.view()
+    ch_interaction_input.view()
 
+    PREPARE_INTERACTIONS.out.versions.view()
+    
+    PREPARE_INTERACTIONS.out.fasta.view()
+    
+    PREPARE_INTERACTIONS.out.fasta
+    .join(ch_interaction_input)
+    .set{ch_boltz_input}
+    
+/*
+//ch_interaction_input.view()
     // RUN_BOLTZ 
+    //PREPARE_INTERACTIONS.out.fasta
+    //.join(ch_interaction_input)
+    //.map { it[0]["model"] = "interactions"; it }
+    //.set{ch_boltz_input}
+    
+    //ch_boltz_input.view()
     RUN_BOLTZ(
-        PREPARE_INTERACTIONS.out.fasta.map { it[0]["model"] = "interactions"; it },
+        ch_boltz_input.map{[it[0], it[1]]},
+        ch_boltz_input.map{[it[0], it[2]]},
         ch_boltz_model,
         ch_boltz_ccd
     )
 
-    /*
+    
     emit:
     versions   = ch_versions
     msa        = RUN_BOLTZ.out.msa

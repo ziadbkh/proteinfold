@@ -9,6 +9,7 @@ process RUN_BOLTZ {
     
     input:
     tuple val(meta), path(fasta)
+    path (files)
     path ('boltz1_conf.ckpt')
     path ('ccd.pkl')
     
