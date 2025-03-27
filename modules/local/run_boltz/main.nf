@@ -5,14 +5,13 @@ process RUN_BOLTZ {
     tag "$meta.id"
     label 'process_medium'
 
-    container "quay.io/nf-core/proteinfold_boltz:dev"
+    container "fastfold/boltz-1:latest"
     
     input:
     tuple val(meta), path(fasta)
     path (files)
     path ('boltz1_conf.ckpt')
     path ('ccd.pkl')
-    val (use_msa_server)
     
     output:
     tuple val(meta), path ("boltz_results_*/processed/msa/*.npz"), emit: msa
@@ -26,9 +25,6 @@ process RUN_BOLTZ {
     
     script:
     def args = task.ext.args ?: ''
-    if (use_msa_server) {
-        args += '--use_msa_server'
-    }
 
     """
     boltz predict --output_format pdb ${args} "${fasta}" --cache ./
