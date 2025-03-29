@@ -8,7 +8,10 @@ process PREPARE_INTERACTIONS {
         'quay.io/biocontainers/python:3.8.3' }"
 
     input:
-    tuple val(meta), val(fasta), val(a3m), path(files)
+    tuple val(meta), val(fasta)
+    tuple val(meta), val(a3m)
+    tuple val(meta), val(types)
+    path(files)
     output:
     tuple val(meta), path ("*.fasta"), emit: fasta
     path "versions.yml"        , emit: versions
@@ -23,7 +26,6 @@ process PREPARE_INTERACTIONS {
     #!/usr/bin/env python3
     import os, sys
     import string
-    #from itertools import product
     
     #single_letters = list(string.ascii_uppercase)
     #two_letter_combinations = [''.join(p) for p in product(string.ascii_uppercase, repeat=2)]
@@ -31,13 +33,19 @@ process PREPARE_INTERACTIONS {
     all_combinations = list(string.ascii_uppercase) + list(string.ascii_lowercase) + [str(x) for x in range(0, 10)]
     fasta_files = ["${fasta.join('", "')}"]
     a3m_files = ["${a3m.join('", "')}"]
-    if len(fasta_files) != len(a3m_files):
-        raise ValueError("FASTA and A3M file lists must be of the same length and order.")
-
+    seq_types = ["${types.join('", "')}"]
+    for seq_type in seq_types:
+        if seq_type not in {"protein", "dna", "rna", "smiles", "ccd"}:
+            print(f'seqeuence type should be ["protein", "dna", "rna", "smiles", "ccd"], found {seq_type}!')
+            exit (1)
     output_file = "${meta.id}_boltz_interaction_input.fasta"
     counter = 0
     with open(output_file, "w") as outfile:
-        for fasta, a3m in zip(fasta_files, a3m_files):
+        for seq_itr in range(len(seq_types)):
+            fasta = fasta_files[seq_itr]
+            a3m   = a3m_files[seq_itr]
+            seq_type  = seq_types[seq_itr]
+
             with open(fasta, "r") as f:
                 lines = f.readlines()
 
@@ -45,15 +53,15 @@ process PREPARE_INTERACTIONS {
                 continue  # Skip empty FASTA files
 
             #header = lines[0].strip()
-            header = f">{all_combinations[counter]}"
-            counter += 1
             body = lines[1:]
-            if header[-1] == "|":
-                new_header = f"{header}protein|{os.path.basename(a3m)}\\n"
+            header = f">{all_combinations[counter]}|{seq_type}"
+            counter += 1
+            if seq_type == "protein":
+                header += f"|{os.path.basename(a3m)}\\n"
             else:
-                new_header = f"{header}|protein|{os.path.basename(a3m)}\\n"
-
-            outfile.write(new_header)
+                header += "\\n"
+            
+            outfile.write(header)
             outfile.writelines(body)
 
     with open ("versions.yml", "w") as version_file:

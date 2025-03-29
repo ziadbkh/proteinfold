@@ -31,14 +31,14 @@ process RUN_BOLTZ {
     """
     stub:
     """
-    mkdir -p boltz_results_S1/processed/msa/
-    mkdir -p boltz_results_S1/processed/structures/
-    mkdir -p boltz_results_S1/predictions/S1/
+    mkdir -p boltz_results_${meta.id}/processed/msa/
+    mkdir -p boltz_results_${meta.id}/processed/structures/
+    mkdir -p boltz_results_${meta.id}/predictions/${meta.id}/
     
-    touch boltz_results_S1/processed/msa/S1.npz
-    touch boltz_results_S1/processed/structures/S1.npz
-    touch boltz_results_S1/predictions/S1/confidence_S1.json
-    touch boltz_results_S1/predictions/S1/S1.pdb
+    touch boltz_results_${meta.id}/processed/msa/${meta.id}.npz
+    touch boltz_results_${meta.id}/processed/structures/${meta.id}.npz
+    touch boltz_results_${meta.id}/predictions/${meta.id}/confidence_${meta.id}.json
+    touch boltz_results_${meta.id}/predictions/${meta.id}/${meta.id}.pdb
     
 
     cat <<-END_VERSIONS > versions.yml
